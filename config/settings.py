@@ -4,6 +4,8 @@ from os.path import join, dirname
 import environ
 from pathlib import Path
 
+from celery.schedules import crontab
+
 env = environ.Env(
     DEBUG=(bool),
     SECRET_KEY=(str),
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'channels',
+    'django_celery_beat',
 
     'emails',
 
@@ -113,6 +116,20 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             "hosts": [(env("REDIS_HOST"), env("REDIS_PORT"))],
         },
+    },
+}
+
+CELERY_BROKER_URL = f'redis://{env("REDIS_HOST")}:{env("REDIS_PORT")}/0'
+CELERY_RESULT_BACKEND = f'redis://{env("REDIS_HOST")}:{env("REDIS_PORT")}/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+CELERY_BEAT_SCHEDULE = {
+    'fetch-emails-every-5-seconds': {
+        'task': 'emails.tasks.fetch_emails_task',
+        'schedule': 5.0,
     },
 }
 

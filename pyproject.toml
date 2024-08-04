@@ -15,6 +15,9 @@ daphne = "^4.1.2"
 django-redis = "^5.0.0"
 python-environ = "^0.4.54"
 psycopg2-binary = "^2.9.9"
+celery = {extras = ["redis"], version = "^5.4.0"}
+django-celery-beat = "^2.6.0"
+redis = "^5.0.8"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^6.0"

@@ -42,11 +42,6 @@
                 console.log(e);
             };
 
-            // Так сильно проще, но можно реализовать через celery таску
-            setInterval(function() {
-                fetch('/api/fetch-emails/');
-            }, 5000); // задержка в 5 секунд
-
             emailSocket.onmessage = function(e) {
                 var data = JSON.parse(e.data);
                 var email = data.message;

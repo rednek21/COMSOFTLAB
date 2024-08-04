@@ -46,17 +46,12 @@ class FetchEmailsView(APIView):
         mail.login(config.email, config.password)
         mail.select('inbox')
 
-        typ, data = mail.search(None, 'ALL')
-        msgs = data[0].split()[-10:]  # Кринж (пояснение дальше)
-
-        # Загружать все сообщения разом - не совсем оправдано с т.з. нагрузки на сеть и времени ожидания
-        # с реализаций скачивания определенного количества сообщений не разобрался.
-        # Скачивать все и отсекать некоторое количество - буэээ :)
-        # Ограничение на последние 10 непрочитанных сообщений, веротяно улучшит ситуацию,
-        # но все упирается в потребности клиента/компании
-        # Может не спасти
-        # typ, data = mail.search(None, '(UNSEEN)')
-        # msgs = data[0].split()
+        last_email = EmailMessage.objects.all().first()
+        if last_email is not None:
+            typ, data = mail.search(None, f'(SINCE {last_email.date_sent.strftime("%d-%b-%Y")})')
+        else:
+            typ, data = mail.search(None, 'ALL')
+        msgs = data[0].split()
 
         messages = []
         for id in msgs:
@@ -70,7 +65,7 @@ class FetchEmailsView(APIView):
             subject = decode_header(msg['Subject'])[0][0].decode() if msg['Subject'] else None
             date = parsedate_to_datetime(msg['Date'])
 
-            # Проверка на существование сообщения в БД. Защита от создания n-количества копий при перезапуске страницы
+            # Проверка на существование сообщения в БД. Защита от создания n-количества копий при запуске celery таски
             if EmailMessage.objects.filter(subject=subject, date_sent=date).exists():
                 continue
 
@@ -115,7 +110,10 @@ class FetchEmailsView(APIView):
 
         serializer = EmailMessageSerializer(messages, many=True)
         logger.info('Fetched emails successfully')
-        return Response(serializer.data)
+        return Response({
+            "total": len(messages),
+            "data": serializer.data
+        })
 
 
 class EmailListView(APIView):

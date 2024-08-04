@@ -33,3 +33,6 @@ class EmailMessage(models.Model):
 
     def __str__(self):
         return self.got_from
+
+    class Meta:
+        ordering = ['-date_sent']
