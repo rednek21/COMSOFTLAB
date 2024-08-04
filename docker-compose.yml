@@ -18,6 +18,38 @@ services:
       redis:
         condition: service_started
 
+  celery:
+    build:
+      context: .
+    command: celery -A config worker -l info
+    volumes:
+      - static_files:/app/static
+      - ./media:/app/media
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_started
+      backend:
+        condition: service_started
+
+
+  celery-beat:
+    build:
+      context: .
+    restart: on-failure
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - static_files:/app/static
+      - ./media:/app/media
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_started
+
 
   postgres:
     image: postgres:16.1-alpine3.19
