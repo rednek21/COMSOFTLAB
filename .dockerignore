@@ -1,0 +1,4 @@
+logs
+.flake8
+.idea
+db.sqlite3
