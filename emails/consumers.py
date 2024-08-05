@@ -1,8 +1,12 @@
 import json
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class EmailConsumer(AsyncWebsocketConsumer):
+    room_name: str
+    room_group_name: str
+
     async def connect(self):
         self.room_name = 'emails'
         self.room_group_name = 'emails_group'
@@ -14,14 +18,11 @@ class EmailConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, close_code: int):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-
-    async def receive(self, text_data):
-        pass
 
     async def email_message(self, event):
         message = event['message']

@@ -1,0 +1,16 @@
+[settings]
+known_third_party =
+known_first_party =
+default_section = THIRDPARTY
+
+line_length = 79
+
+multi_line_output = 3
+include_trailing_comma = True
+force_grid_wrap = 0
+use_parentheses = True
+
+lines_between_types = 1
+sections = FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER
+
+balanced_wrapping = True

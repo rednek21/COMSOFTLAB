@@ -1,59 +1,123 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Email List</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+  </head>
+  <body>
+    <div class="progress-wrapper">
+      <h1 class="progress-message">Ищем последнее добавленное сообщение</h1>
+      <progress class="progress-bar"></progress>
+    </div>
     <h1>Emails</h1>
     <table>
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>Date Sent</th>
-                <th>Date Received</th>
-                <th>Body</th>
-                <th>Attachments</th>
-            </tr>
-        </thead>
-        <tbody id="email-list">
-        </tbody>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Date Sent</th>
+          <th>Date Received</th>
+          <th>Body</th>
+          <th>Attachments</th>
+        </tr>
+      </thead>
+      <tbody id="email-list"></tbody>
     </table>
+<<<<<<< HEAD
+    <script> // написанием фронта заннимался не я :))
+=======
     <script>
-        $(document).ready(function() {
-            $.getJSON('/api/fetch-emails/')
-            $.getJSON('/api/emails-list/', function(data) {
-                if (data) {
-                    var rows = '';
-                    data.forEach(function(email) {
-                        var attachments = email.attachments.map(a => a.name).join(", ");
-                        rows += '<tr><td>' + email.subject + '</td><td>' + email.date_sent + '</td><td>' + email.date_received + '</td><td>' + email.body + '</td><td>' + attachments + '</td></tr>';
-                    });
-                    $('#email-list').html(rows);
-                }
-            });
-
-            var emailSocket = new WebSocket(
-                'ws://' + window.location.host + '/ws/emails/',
-                'echo-protocol'
-            );
-
-            emailSocket.onerror = function(e) {
-                console.log(e);
-            };
-
-            emailSocket.onmessage = function(e) {
-                var data = JSON.parse(e.data);
-                var email = data.message;
-                var attachments = email.attachments.map(a => a.name).join(", ");
-                var row = '<tr><td>' + email.subject + '</td><td>' + email.date_sent + '</td><td>' + email.date_received + '</td><td>' + email.body + '</td><td>' + attachments + '</td></tr>';
-                $('#email-list').prepend(row);
-            };
-
-            emailSocket.onclose = function(e) {
-                console.error('Email socket closed unexpectedly');
-            };
+>>>>>>> 31b5f187aabd8f8251caf2c7197a93e099397529
+      $(document).ready(function () {
+        $.getJSON("/api/fetch-emails/", function (data) {
+          if (data.total != 0) {
+            $(".progress-bar").max = data.total;
+            $(".progress-bar").value = 0;
+            $(".progress-message").html("Загрузка новых сообщений");
+            window.totalNew = data.total;
+          } else {
+            $(".progress-message").html("Новых сообщений не найдено");
+            window.totalNew = 0;
+          }
         });
+        $.getJSON("/api/emails-list/", function (data) {
+          if (data) {
+            var rows = "";
+            data.forEach(function (email) {
+              var attachments = email.attachments.map((a) => a.name).join(", ");
+              rows +=
+                "<tr><td>" +
+                email.subject +
+                "</td><td>" +
+                email.date_sent +
+                "</td><td>" +
+                email.date_received +
+                "</td><td>" +
+                email.body +
+                "</td><td>" +
+                attachments +
+                "</td></tr>";
+            });
+            $("#email-list").html(rows);
+          }
+        });
+
+        var emailSocket = new WebSocket(
+          "ws://" + window.location.host + "/ws/emails/",
+          "echo-protocol"
+        );
+
+        emailSocket.onerror = function (e) {
+          console.log(e);
+          $(".progress-message").html("Ошибка подключения к сокету");
+        };
+
+        emailSocket.onmessage = function (e) {
+          var data = JSON.parse(e.data);
+          var email = data.message;
+          var attachments = email.attachments.map((a) => a.name).join(", ");
+          var row =
+            "<tr><td>" +
+            email.subject +
+            "</td><td>" +
+            email.date_sent +
+            "</td><td>" +
+            email.date_received +
+            "</td><td>" +
+            email.body +
+            "</td><td>" +
+            attachments +
+            "</td></tr>";
+          $("#email-list").prepend(row);
+          $(".progress-bar").value += 1;
+          let date = new Date();
+          console.log("Время получения сообщения: ", date);
+          if (window.totalNew > 0) {
+            $(".progress-message").html(
+              `Получено новых сообщений: ${$(".progress-bar").value} из ${
+                $(".progress-bar").max
+              }`
+            );
+            if ($(".progress-bar").value == $(".progress-bar").max) {
+              $(".progress-message").html(
+                "Загрусзка новых сообщений завершена."
+              );
+              window.totalNew = 0;
+            }
+          } else {
+            $(".progress-message").html("Получено новое сообщение.");
+            setTimeout(function () {
+              $(".progress-message").html("Ожидание новых сообщений.");
+            }, 10000);
+          }
+        };
+
+        emailSocket.onclose = function (e) {
+          console.error("Email socket closed unexpectedly");
+          $(".progress-message").html("Соединение с сокетом разорвано");
+        };
+      });
     </script>
-</body>
+  </body>
 </html>

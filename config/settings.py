@@ -1,10 +1,8 @@
 import os
-from os.path import join, dirname
-
-import environ
+from os.path import dirname, join
 from pathlib import Path
 
-from celery.schedules import crontab
+import environ
 
 env = environ.Env(
     DEBUG=(bool),
@@ -79,7 +77,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 ASGI_APPLICATION = "config.asgi.application"
 
-
 if DEBUG:
     DATABASES = {
         'default': {
@@ -98,7 +95,6 @@ else:
             'PORT': env('POSTGRES_PORT'),
         }
     }
-
 
 CACHES = {
     'default': {
@@ -130,6 +126,8 @@ CELERY_BEAT_SCHEDULE = {
     'fetch-emails-every-5-seconds': {
         'task': 'emails.tasks.fetch_emails_task',
         'schedule': 5.0,
+        # так задавать необязательно.
+        # Можно использовать crontab(from celery.schedules import crontab) для планировки работы таски
     },
 }
 
@@ -170,15 +168,12 @@ else:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
 
 LOGGING = {
     'version': 1,

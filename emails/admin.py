@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import File, EmailConfig, EmailMessage
 
+from .models import EmailConfig, EmailMessage, File
 
 admin.site.register(File)
 admin.site.register(EmailConfig)
