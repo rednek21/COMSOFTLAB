@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 
 
@@ -9,10 +8,11 @@ class EmailConfig(models.Model):
     port = models.PositiveIntegerField()
 
     # Реализованный Singleton для хранения единственной конфигурации
-    #
-    # def save(self, *args, **kwargs):
-    #     self.__class__.objects.exclude(id=self.id).delete()
-    #     super(EmailConfig, self).save(*args, **kwargs)
+    # Если нужно хранить конфиги сразу для нескольких почт, то можно и убрать
+    # Реализованная view будет работать с любой переданной конфигурацией
+    def save(self, *args, **kwargs):
+        self.__class__.objects.exclude(id=self.id).delete()
+        super(EmailConfig, self).save(*args, **kwargs)
 
 
 class File(models.Model):
