@@ -1,11 +1,12 @@
 import logging
+
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from transport.imap.imap_client import IMAPClient
-from transport.imap.utils import process_email_message, send_email_notification
 from emails.models import EmailConfig, EmailMessage
 from emails.serializers import EmailMessageSerializer
+from transport.imap.imap_client import IMAPClient
+from transport.imap.utils import process_email_message, send_email_notification
 
 logger = logging.getLogger(__name__)
 

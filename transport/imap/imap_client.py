@@ -1,5 +1,5 @@
-import email
 import base64
+import email
 from imaplib import IMAP4_SSL
 
 

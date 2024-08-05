@@ -1,8 +1,8 @@
 import os
-from os.path import join, dirname
+from os.path import dirname, join
+from pathlib import Path
 
 import environ
-from pathlib import Path
 
 env = environ.Env(
     DEBUG=(bool),
@@ -125,8 +125,9 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULE = {
     'fetch-emails-every-5-seconds': {
         'task': 'emails.tasks.fetch_emails_task',
-        'schedule': 5.0, #  так задавать необязательно.
-                        # Можно использовать crontab(from celery.schedules import crontab) для планировки работы таски
+        'schedule': 5.0,
+        # так задавать необязательно.
+        # Можно использовать crontab(from celery.schedules import crontab) для планировки работы таски
     },
 }
 
